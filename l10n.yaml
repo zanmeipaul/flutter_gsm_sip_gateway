@@ -1,4 +1,7 @@
 arb-dir: lib/l10n
 template-arb-file: app_en.arb
+output-class: AppLocalizations
+# 关键改动：强制将生成文件放在 lib/generated 目录下
 output-localization-file: app_localizations.dart
-output-class: AppLocalizations 
+output-dir: lib/generated
+synthetic-package: false
