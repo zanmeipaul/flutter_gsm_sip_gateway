@@ -18,27 +18,26 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          # 指定具体的版本以增加稳定性
           channel: 'stable'
           cache: true
-
-      - name: Check Flutter Version
-        # 这一步可以帮你确认当前到底跑在哪个版本上
-        run: flutter --version
 
       - name: Install Android NDK
         run: |
           echo "y" | sudo ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager --install "ndk;25.1.8937393"
 
-      - name: Get dependencies
+      - name: Fix Localization Imports
+        # 这个脚本会自动把错误的引用替换为我们生成的本地路径
+        run: |
+          grep -rl "package:flutter_gen/gen_l10n/app_localizations.dart" lib/ | xargs sed -i 's/package:flutter_gen\/gen_l10n\/app_localizations.dart/package:flutter_gsm_sip_gateway\/generated\/app_localizations.dart/g'
+
+      - name: Get dependencies & Generate
         run: |
           flutter pub get
-          # 强制生成 l10n 文件
+          # 确保生成目录存在
+          mkdir -p lib/generated
           flutter gen-l10n
 
       - name: Build APK
-        # 核心改动：增加 --no-sound-null-safety 以防项目中有旧代码冲突
-        # 同时增加 --verbose 查看详细报错
         run: |
           flutter build apk --release --no-tree-shake-icons
 
@@ -46,4 +45,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: release-apk
-          path: build/app/outputs/flutter-apk/app-release-unsigned.apk
+          path: build/app/outputs/flutter-apk/app-release.apk
