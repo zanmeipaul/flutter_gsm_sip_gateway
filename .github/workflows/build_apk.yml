@@ -40,7 +40,7 @@ jobs:
         # 核心改动：增加 --no-sound-null-safety 以防项目中有旧代码冲突
         # 同时增加 --verbose 查看详细报错
         run: |
-          flutter build apk --release --no-tree-shake-icons --no-sound-null-safety
+          flutter build apk --release --no-tree-shake-icons
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
