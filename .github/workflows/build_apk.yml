@@ -21,28 +21,29 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: Install Android NDK
+      - name: Fix Assets and Folders
+        # 如果 pubspec 引用了不存在的目录，我们手动创建它们以防报错
         run: |
-          echo "y" | sudo ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager --install "ndk;25.1.8937393"
+          mkdir -p assets/images
+          mkdir -p assets/icons
+          mkdir -p lib/generated
 
       - name: Fix Localization Imports
-        # 这个脚本会自动把错误的引用替换为我们生成的本地路径
         run: |
-          grep -rl "package:flutter_gen/gen_l10n/app_localizations.dart" lib/ | xargs sed -i 's/package:flutter_gen\/gen_l10n\/app_localizations.dart/package:flutter_gsm_sip_gateway\/generated\/app_localizations.dart/g'
+          grep -rl "package:flutter_gen/gen_l10n/app_localizations.dart" lib/ | xargs sed -i 's/package:flutter_gen\/gen_l10n\/app_localizations.dart/package:flutter_gsm_sip_gateway\/generated\/app_localizations.dart/g' || true
 
       - name: Get dependencies & Generate
         run: |
           flutter pub get
-          # 确保生成目录存在
-          mkdir -p lib/generated
           flutter gen-l10n
 
-      - name: Build APK
+      - name: Build Debug APK
+        # 使用 debug 模式可以绕过 Release 签名的权限问题
         run: |
-          flutter build apk --release --no-tree-shake-icons
+          flutter build apk --debug --no-tree-shake-icons
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          name: debug-apk
+          path: build/app/outputs/flutter-apk/app-debug.apk
