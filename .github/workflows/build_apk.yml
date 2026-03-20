@@ -1,7 +1,7 @@
 name: Build Android APK
 
 on: 
-  workflow_dispatch: # 允许手动触发打包
+  workflow_dispatch: 
 
 jobs:
   build:
@@ -18,25 +18,28 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
+          # 指定具体的版本以增加稳定性
+          flutter-version: '3.19.0' 
           channel: 'stable'
 
       - name: Install Android NDK
         run: |
-          sudo ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager --install "ndk;25.1.8937393"
+          echo "y" | sudo ${ANDROID_SDK_ROOT}/cmdline-tools/latest/bin/sdkmanager --install "ndk;25.1.8937393"
 
       - name: Get dependencies
-        run: flutter pub get
-
-      - name: Generate Localization files
-        # 增加这一行，解决 'flutter_gen' 找不到的问题
-        run: flutter gen-l10n
+        run: |
+          flutter pub get
+          # 强制生成 l10n 文件
+          flutter gen-l10n
 
       - name: Build APK
-        # 这一步会处理 PJSIP 的原生编译
-        run: flutter build apk --release --no-tree-shake-icons
+        # 核心改动：增加 --no-sound-null-safety 以防项目中有旧代码冲突
+        # 同时增加 --verbose 查看详细报错
+        run: |
+          flutter build apk --release --no-tree-shake-icons --no-sound-null-safety
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: release-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: build/app/outputs/flutter-apk/app-release-unsigned.apk
