@@ -27,6 +27,10 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
+      - name: Generate Localization files
+        # 增加这一行，解决 'flutter_gen' 找不到的问题
+        run: flutter gen-l10n
+
       - name: Build APK
         # 这一步会处理 PJSIP 的原生编译
         run: flutter build apk --release --no-tree-shake-icons
