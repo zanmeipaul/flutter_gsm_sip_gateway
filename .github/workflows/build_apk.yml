@@ -19,9 +19,12 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           # 指定具体的版本以增加稳定性
-          flutter-version: '3.31.0' 
           channel: 'stable'
           cache: true
+
+      - name: Check Flutter Version
+        # 这一步可以帮你确认当前到底跑在哪个版本上
+        run: flutter --version
 
       - name: Install Android NDK
         run: |
