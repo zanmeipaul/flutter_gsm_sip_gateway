@@ -19,7 +19,7 @@ jobs:
         uses: subosito/flutter-action@v2
         with:
           # 指定具体的版本以增加稳定性
-          flutter-version: '3.27.0' 
+          flutter-version: '3.31.0' 
           channel: 'stable'
           cache: true
 
